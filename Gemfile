@@ -10,7 +10,7 @@ gem 'tzinfo-data'
 gem 'rails-i18n', '~> 5.0.0'
 
 # Style
-gem 'bootstrap', '~> 4.0.0.beta3'
+gem 'bootstrap', '~> 4.3.1'
 gem 'font-awesome-sass'
 gem 'sass-rails'
 
