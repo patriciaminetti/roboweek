@@ -1,36 +1,49 @@
 *** Settings ***
-Documentation    Cadastro de Jogos
+Documentation   Cadastro de jogos
 
-Library    SeleniumLibrary
+Resource        resources/keywords.robot
 
+Suite Setup         Inicia Sessao
+Suite Teardown      Encerra Sessao
+Test Teardown       Depois do Teste
 
 *** Test Cases ***
 Cadastrar novo jogo
-    Dado que acesso o portal de cadastro de jogos
-    Quando eu faço o cadastro de um novo jogo
-    Então vejo a mensagem de sucesso "Produto cadastrado com sucesso"
-    E vejo esse novo jogo na lista
+    [tags]  smoke
+    Dado que eu tenho o seguinte produto
+    ...     Pitfal 2      Aventura na selva       19.99     10
+    E acesso o portal de cadastro de jogos
+    Quando eu faço o cadastro desse item
+    Então vejo a mensagem de sucesso "Produto cadastrado com sucesso."
+    E vejo este novo jogo na lista
 
+Jogo não pode ser duplicado
+    [tags]  dup
+    Dado que eu tenho o seguinte produto
+    ...     Enduro      Clássico de Corrida       29.99     20
+    E acesso o portal de cadastro de jogos
+    Mas este produto já foi cadastrado
+    Quando eu faço o cadastro desse item
+    Então devo ver a mensagem de alerta "Nome já está em uso" 
+
+Nome deve ser obrigatório
+    [Template]      Tentar Cadastrar
+    ${EMPTY}   19.99   10      Nome não pode ficar em branco
+
+Preço deve ser obrigatório
+    [Template]      Tentar Cadastrar
+    Pitfal     ${EMPTY}     10      Preco não pode ficar em branco
+
+Quantidade deve ser obrigatório
+    [Template]      Tentar Cadastrar
+    Pitfal     19.99     ${EMPTY}       Quantidade não pode ficar em branco
 
 *** Keywords ***
-Dado que acesso o portal de cadastro de jogos
-    Open Browser                  http://localhost:3000/    chrome
-    Set Selenium Implicit Wait    5
-    Click Link                    /produtos/new
+Tentar Cadastrar
+    [Arguments]     ${nome}    ${preco}    ${qtd}     ${texto}
 
-Quando eu faço o cadastro de um novo jogo
-    Input Text    id:produto_nome          Call of Duty
-    Input Text    id:produto_descricao     Um jogo muito legal!    
-    Input Text    id:produto_preco         99.99
-    Input Text    id:produto_quantidade    10
-
-    Click Element    xpath://input[@value='Criar Produto']    
-
-Então vejo a mensagem de sucesso "${mensagem_esperada}"
-    Element Should Contain    css:div[role=alert]    ${mensagem_esperada}
-
-E vejo esse novo jogo na lista
-    Element Should Contain    css:table tbody    Call of Duty
-
-    Capture Page Screenshot
-    Close Browser 
+    Dado que eu tenho o seguinte produto
+    ...     ${nome}      Aventura na selva      ${preco}    ${qtd}
+    E acesso o portal de cadastro de jogos
+    Quando eu faço o cadastro desse item
+    Então devo ver a mensagem de alerta "${texto}"
